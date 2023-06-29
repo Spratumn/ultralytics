@@ -318,7 +318,7 @@ class Exporter:
             self.im.cpu() if dynamic else self.im,
             f,
             verbose=False,
-            opset_version=opset_version,
+            opset_version=12,
             do_constant_folding=True,  # WARNING: DNN inference with torch>=1.12 may require do_constant_folding=False
             input_names=['images'],
             output_names=output_names,
