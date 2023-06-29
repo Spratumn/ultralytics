@@ -70,7 +70,7 @@ class YOLO:
         list(ultralytics.yolo.engine.results.Results): The prediction results.
     """
 
-    def __init__(self, model: Union[str, Path] = 'yolov8n.pt', task=None) -> None:
+    def __init__(self, model: Union[str, Path] = 'yolov8n.pt', task=None, num_class=None) -> None:
         """
         Initializes the YOLO model.
 
@@ -102,7 +102,7 @@ class YOLO:
         if not suffix and Path(model).stem in GITHUB_ASSET_STEMS:
             model, suffix = Path(model).with_suffix('.pt'), '.pt'  # add suffix, i.e. yolov8n -> yolov8n.pt
         if suffix == '.yaml':
-            self._new(model, task)
+            self._new(model, task, num_class=num_class)
         else:
             self._load(model, task)
 
@@ -123,7 +123,7 @@ class YOLO:
             [len(x) for x in model.split('_')] == [42, 20],  # APIKEY_MODELID
             len(model) == 20 and not Path(model).exists() and all(x not in model for x in './\\')))  # MODELID
 
-    def _new(self, cfg: str, task=None, verbose=True):
+    def _new(self, cfg: str, task=None, verbose=True, num_class=None):
         """
         Initializes a new model and infers the task type from the model definitions.
 
@@ -133,6 +133,7 @@ class YOLO:
             verbose (bool): display model info on load
         """
         cfg_dict = yaml_model_load(cfg)
+        if num_class is not None: cfg_dict.update({'nc': num_class})
         self.cfg = cfg
         self.task = task or guess_model_task(cfg_dict)
         self.model = TASK_MAP[self.task][0](cfg_dict, verbose=verbose and RANK == -1)  # build model
